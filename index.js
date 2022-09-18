@@ -19,7 +19,8 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const database = client.db("geniusCar");
-    const serviceCollection = database.collection("service");
+    const serviceCollection = database.collection('service');
+    const ordersCollection = database.collection('orders');
 
     app.get("/service", async (req, res) => {
       const query = {};
@@ -46,6 +47,25 @@ async function run() {
         const result = serviceCollection.deleteOne(query);
         res.send(result);
       });
+
+      //Order Collection API
+      app.post("/order", async (req, res)=>{
+        const order = req.body;
+        const result = await ordersCollection.insertOne(order);
+        res.json(result);
+      })
+
+      //Order Collection API:
+      app.get("/order", async (req, res) => {
+        
+        const email = req.query.email;
+        const query = {email: email};
+        const cursor = ordersCollection.find(query);
+        const orders = await cursor.toArray();
+        res.send(orders);
+      })
+
+
     });
   } finally {
   }
